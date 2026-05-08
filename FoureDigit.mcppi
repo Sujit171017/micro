@@ -1,0 +1,6 @@
+[PROJECTS]
+Count=2
+Project0=..\..\Lab\Practice\Lab-2-single_digit\single_digit.mcppi
+Project1=FoureDigit.mcppi
+[ActiveProject]
+Index=1

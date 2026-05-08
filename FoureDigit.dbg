@@ -1,0 +1,49 @@
+#line 1 "E:/ICE 3-1/Microcontroller and Computer Architecture/ExAm/Lab-1-4digit/FoureDigit.c"
+char arraycc[] = {0x3F,0x06,0x5B,0x4F,0x66,0x6D,0x7D,0x07,0x7F,0x6F};
+int i;
+
+void main() {
+ int number = 7250;
+ int digits[4];
+
+ TrisB = 0x00;
+ TrisC = 0x00;
+ PORTB = 0x00;
+ PORTC = 0x00;
+
+ while(1) {
+
+ digits[0] = number / 1000;
+ digits[1] = (number / 100) % 10;
+ digits[2] = (number / 10) % 10;
+ digits[3] = number % 10;
+
+
+ for( i=0; i<100; i++) {
+ PORTC.F0 = 0;
+ PORTB = arraycc[digits[0]];
+ delay_ms(3);
+ PORTC.F0 = 1;
+
+ PORTC.F1 = 0;
+ PORTB = arraycc[digits[1]];
+ delay_ms(3);
+ PORTC.F1 = 1;
+
+ PORTC.F2 = 0;
+ PORTB = arraycc[digits[2]];
+ delay_ms(3);
+ PORTC.F2 = 1;
+
+ PORTC.F3 = 0;
+ PORTB = arraycc[digits[3]];
+ delay_ms(3);
+ PORTC.F3 = 1;
+ }
+
+ number++;
+ if(number > 7300) {
+ number = 7250;
+ }
+ }
+}

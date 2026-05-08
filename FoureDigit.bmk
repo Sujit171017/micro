@@ -1,0 +1,239 @@
+
+_main:
+
+;FoureDigit.c,4 :: 		void main() {
+;FoureDigit.c,5 :: 		int number = 7250;   // Starting number
+	MOVLW      82
+	MOVWF      main_number_L0+0
+	MOVLW      28
+	MOVWF      main_number_L0+1
+;FoureDigit.c,8 :: 		TrisB = 0x00;  // 7-segment data port
+	CLRF       TRISB+0
+;FoureDigit.c,9 :: 		TrisC = 0x00;  // Digit select port
+	CLRF       TRISC+0
+;FoureDigit.c,10 :: 		PORTB = 0x00;
+	CLRF       PORTB+0
+;FoureDigit.c,11 :: 		PORTC = 0x00;
+	CLRF       PORTC+0
+;FoureDigit.c,13 :: 		while(1) {
+L_main0:
+;FoureDigit.c,15 :: 		digits[0] = number / 1000;             // Thousands
+	MOVLW      232
+	MOVWF      R4+0
+	MOVLW      3
+	MOVWF      R4+1
+	MOVF       main_number_L0+0, 0
+	MOVWF      R0+0
+	MOVF       main_number_L0+1, 0
+	MOVWF      R0+1
+	CALL       _Div_16x16_S+0
+	MOVF       R0+0, 0
+	MOVWF      main_digits_L0+0
+	MOVF       R0+1, 0
+	MOVWF      main_digits_L0+1
+;FoureDigit.c,16 :: 		digits[1] = (number / 100) % 10;       // Hundreds
+	MOVLW      100
+	MOVWF      R4+0
+	MOVLW      0
+	MOVWF      R4+1
+	MOVF       main_number_L0+0, 0
+	MOVWF      R0+0
+	MOVF       main_number_L0+1, 0
+	MOVWF      R0+1
+	CALL       _Div_16x16_S+0
+	MOVLW      10
+	MOVWF      R4+0
+	MOVLW      0
+	MOVWF      R4+1
+	CALL       _Div_16x16_S+0
+	MOVF       R8+0, 0
+	MOVWF      R0+0
+	MOVF       R8+1, 0
+	MOVWF      R0+1
+	MOVF       R0+0, 0
+	MOVWF      main_digits_L0+2
+	MOVF       R0+1, 0
+	MOVWF      main_digits_L0+3
+;FoureDigit.c,17 :: 		digits[2] = (number / 10) % 10;        // Tens
+	MOVLW      10
+	MOVWF      R4+0
+	MOVLW      0
+	MOVWF      R4+1
+	MOVF       main_number_L0+0, 0
+	MOVWF      R0+0
+	MOVF       main_number_L0+1, 0
+	MOVWF      R0+1
+	CALL       _Div_16x16_S+0
+	MOVLW      10
+	MOVWF      R4+0
+	MOVLW      0
+	MOVWF      R4+1
+	CALL       _Div_16x16_S+0
+	MOVF       R8+0, 0
+	MOVWF      R0+0
+	MOVF       R8+1, 0
+	MOVWF      R0+1
+	MOVF       R0+0, 0
+	MOVWF      main_digits_L0+4
+	MOVF       R0+1, 0
+	MOVWF      main_digits_L0+5
+;FoureDigit.c,18 :: 		digits[3] = number % 10;               // Units
+	MOVLW      10
+	MOVWF      R4+0
+	MOVLW      0
+	MOVWF      R4+1
+	MOVF       main_number_L0+0, 0
+	MOVWF      R0+0
+	MOVF       main_number_L0+1, 0
+	MOVWF      R0+1
+	CALL       _Div_16x16_S+0
+	MOVF       R8+0, 0
+	MOVWF      R0+0
+	MOVF       R8+1, 0
+	MOVWF      R0+1
+	MOVF       R0+0, 0
+	MOVWF      main_digits_L0+6
+	MOVF       R0+1, 0
+	MOVWF      main_digits_L0+7
+;FoureDigit.c,21 :: 		for( i=0; i<100; i++) { // Repeat to maintain display (~1s)
+	CLRF       _i+0
+	CLRF       _i+1
+L_main2:
+	MOVLW      128
+	XORWF      _i+1, 0
+	MOVWF      R0+0
+	MOVLW      128
+	SUBWF      R0+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main11
+	MOVLW      100
+	SUBWF      _i+0, 0
+L__main11:
+	BTFSC      STATUS+0, 0
+	GOTO       L_main3
+;FoureDigit.c,22 :: 		PORTC.F0 = 0;
+	BCF        PORTC+0, 0
+;FoureDigit.c,23 :: 		PORTB = arraycc[digits[0]];
+	MOVF       main_digits_L0+0, 0
+	ADDLW      _arraycc+0
+	MOVWF      FSR
+	MOVF       INDF+0, 0
+	MOVWF      PORTB+0
+;FoureDigit.c,24 :: 		delay_ms(3);
+	MOVLW      8
+	MOVWF      R12+0
+	MOVLW      201
+	MOVWF      R13+0
+L_main5:
+	DECFSZ     R13+0, 1
+	GOTO       L_main5
+	DECFSZ     R12+0, 1
+	GOTO       L_main5
+	NOP
+	NOP
+;FoureDigit.c,25 :: 		PORTC.F0 = 1;
+	BSF        PORTC+0, 0
+;FoureDigit.c,27 :: 		PORTC.F1 = 0;
+	BCF        PORTC+0, 1
+;FoureDigit.c,28 :: 		PORTB = arraycc[digits[1]];
+	MOVF       main_digits_L0+2, 0
+	ADDLW      _arraycc+0
+	MOVWF      FSR
+	MOVF       INDF+0, 0
+	MOVWF      PORTB+0
+;FoureDigit.c,29 :: 		delay_ms(3);
+	MOVLW      8
+	MOVWF      R12+0
+	MOVLW      201
+	MOVWF      R13+0
+L_main6:
+	DECFSZ     R13+0, 1
+	GOTO       L_main6
+	DECFSZ     R12+0, 1
+	GOTO       L_main6
+	NOP
+	NOP
+;FoureDigit.c,30 :: 		PORTC.F1 = 1;
+	BSF        PORTC+0, 1
+;FoureDigit.c,32 :: 		PORTC.F2 = 0;
+	BCF        PORTC+0, 2
+;FoureDigit.c,33 :: 		PORTB = arraycc[digits[2]];
+	MOVF       main_digits_L0+4, 0
+	ADDLW      _arraycc+0
+	MOVWF      FSR
+	MOVF       INDF+0, 0
+	MOVWF      PORTB+0
+;FoureDigit.c,34 :: 		delay_ms(3);
+	MOVLW      8
+	MOVWF      R12+0
+	MOVLW      201
+	MOVWF      R13+0
+L_main7:
+	DECFSZ     R13+0, 1
+	GOTO       L_main7
+	DECFSZ     R12+0, 1
+	GOTO       L_main7
+	NOP
+	NOP
+;FoureDigit.c,35 :: 		PORTC.F2 = 1;
+	BSF        PORTC+0, 2
+;FoureDigit.c,37 :: 		PORTC.F3 = 0;
+	BCF        PORTC+0, 3
+;FoureDigit.c,38 :: 		PORTB = arraycc[digits[3]];
+	MOVF       main_digits_L0+6, 0
+	ADDLW      _arraycc+0
+	MOVWF      FSR
+	MOVF       INDF+0, 0
+	MOVWF      PORTB+0
+;FoureDigit.c,39 :: 		delay_ms(3);
+	MOVLW      8
+	MOVWF      R12+0
+	MOVLW      201
+	MOVWF      R13+0
+L_main8:
+	DECFSZ     R13+0, 1
+	GOTO       L_main8
+	DECFSZ     R12+0, 1
+	GOTO       L_main8
+	NOP
+	NOP
+;FoureDigit.c,40 :: 		PORTC.F3 = 1;
+	BSF        PORTC+0, 3
+;FoureDigit.c,21 :: 		for( i=0; i<100; i++) { // Repeat to maintain display (~1s)
+	INCF       _i+0, 1
+	BTFSC      STATUS+0, 2
+	INCF       _i+1, 1
+;FoureDigit.c,41 :: 		}
+	GOTO       L_main2
+L_main3:
+;FoureDigit.c,43 :: 		number++;  // Increment number
+	INCF       main_number_L0+0, 1
+	BTFSC      STATUS+0, 2
+	INCF       main_number_L0+1, 1
+;FoureDigit.c,44 :: 		if(number > 7300) {
+	MOVLW      128
+	XORLW      28
+	MOVWF      R0+0
+	MOVLW      128
+	XORWF      main_number_L0+1, 0
+	SUBWF      R0+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main12
+	MOVF       main_number_L0+0, 0
+	SUBLW      132
+L__main12:
+	BTFSC      STATUS+0, 0
+	GOTO       L_main9
+;FoureDigit.c,45 :: 		number = 7250;  // Reset to start
+	MOVLW      82
+	MOVWF      main_number_L0+0
+	MOVLW      28
+	MOVWF      main_number_L0+1
+;FoureDigit.c,46 :: 		}
+L_main9:
+;FoureDigit.c,47 :: 		}
+	GOTO       L_main0
+;FoureDigit.c,48 :: 		}
+L_end_main:
+	GOTO       $+0
+; end of _main
