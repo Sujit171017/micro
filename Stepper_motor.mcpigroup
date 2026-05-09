@@ -1,0 +1,6 @@
+[PROJECTS]
+Count=2
+Project0=..\LAB_1\MyProject.mcppi
+Project1=Stepper_motor.mcppi
+[ActiveProject]
+Index=1
